@@ -2,17 +2,16 @@
   import java.io.*;
   import java.util.ArrayList;
 %}
-%token WA, MO, DESU, JAARIMASEN, DEWAARIMASEN, DESUKA
+%token WA, MO, NOUN, DESU, JAARIMASEN, DEWAARIMASEN, DESUKA
 
 %%
-sintagmaNominal: substantivo sufixo
-			   ;
+nominal: NOUN
+	   ;
 
-kei11: sintagmaNominal wamo sintagmaNominal copula
-	 | sintagmaNominal wamo sintagmaNominal copula
+form1: nominal bindingParticle nominal copula
 	 ;
 	 
-wamo: WA
+bindingParticle: WA
 	| MO
 	;
 	 
