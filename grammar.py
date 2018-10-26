@@ -1,13 +1,12 @@
 next_token_group = []
-NOMINAL, WA, MO, KARA, MADE, KA, NI, HE, TO, DE, WO, PoliteCopula, VerboMasu = "test"
+NOMINAL, WA, MO, KARA, MADE, KA, NI, HE, TO, DE, WO, PoliteCopula, VerboMasu, Adjectives, Adj_I, Adj_NA, NA = "test"
 curr_rule, overall_rule = -1, -1
-
-from terms import common_terms
 
 def check(curr_rule, overall_rule, token_group):
     pass
 
-def rule_00(overall_rule):
+
+def topic(overall_rule):
 
     curr_rule = 0
 
@@ -30,23 +29,29 @@ def rule_00(overall_rule):
     if(loop): 
         check(curr_rule, overall_rule, group)
 
+def KA_rule(overall_rule):
+
+    curr_rule = -10
+
+    if (next_token_group == [KA]):
+        check(curr_rule, overall_rule, [KA])
+
 def rule_01(overall_rule):
 
     curr_rule = 1
 
-    rule_00(overall_rule)
+    topic(overall_rule)
 
     check(curr_rule, overall_rule, [NOMINAL])
     check(curr_rule, overall_rule, [PoliteCopula])
 
-    if (next_token_group == [KA]):
-        check(1, overall_rule, [KA])
+    KA_rule(overall_rule)
 
 def rule_02(overall_rule):
 
     curr_rule = 2
 
-    rule_00(overall_rule)
+    topic(overall_rule)
 
     if(next_token_group == [NOMINAL, KARA]):
         check(curr_rule, overall_rule, [NOMINAL, KARA])
@@ -56,27 +61,26 @@ def rule_02(overall_rule):
 
     if(next_token_group == [VerboMasu]):
         check(curr_rule, overall_rule, [VerboMasu])
-    else:
+    elif(next_token_group == [PoliteCopula]):
         check(curr_rule, overall_rule, [PoliteCopula])
 
-    if (next_token_group == [KA]):
-        check(curr_rule, overall_rule, [KA])
+    KA_rule(overall_rule)
 
-def rule_03(overall_rule):
+def NI_rule_01(overall_rule): # Particle に as specific point in time indicator
 
     curr_rule = 3
 
     if(next_token_group == [NOMINAL, NI]): 
         check(curr_rule, overall_rule, [NOMINAL, NI])
 
-def rule_04(overall_rule):
+def HE_rule(overall_rule):
 
     curr_rule = 4
 
     if(next_token_group == [NOMINAL, HE]): 
         check(curr_rule, overall_rule, [NOMINAL, HE])
 
-def rule_05(overall_rule):
+def TO_rule(overall_rule):
 
     curr_rule = 5
 
@@ -92,48 +96,52 @@ def rule_05(overall_rule):
     if(len(group) > 0):
         check(curr_rule, overall_rule, group)
 
-def rule_06(overall_rule):
+def DE_rule_01(overall_rule): # Particle で as mean indicator
 
     curr_rule = 6
 
     if(next_token_group == [NOMINAL, DE]): 
         check(curr_rule, overall_rule, [NOMINAL, DE])
 
-def rule_07(overall_rule):
-
-    curr_rule = 7
-
-    rule_00(overall_rule)
-    rule_03(overall_rule)
-    rule_05(overall_rule)
-    rule_06(overall_rule)
-    rule_04(overall_rule)
-
-    if(next_token_group == [VerboMasu]):
-        check(curr_rule, overall_rule, [VerboMasu])
-
-    if (next_token_group == [KA]):
-        check(curr_rule, overall_rule, [KA])
-
-def rule_08(overall_rule):
+def WO_rule(overall_rule):
 
     curr_rule = 8
 
     if(next_token_group == [NOMINAL, WO]): 
         check(curr_rule, overall_rule, [NOMINAL, WO]) 
 
-def rule_09(overall_rule):
+def rule_07(overall_rule):
 
-    curr_rule = 9
+    curr_rule = 7
 
-    rule_00(overall_rule)
-    rule_03(overall_rule)
-    rule_05(overall_rule)
-    rule_06(overall_rule)
-    rule_08(overall_rule)
+    topic(overall_rule)
+    
+    NI_rule_01(overall_rule)
+    TO_rule(overall_rule)
+    DE_rule_01(overall_rule)
 
-    if(next_token_group == [VerboMasu]):
-        check(curr_rule, overall_rule, [VerboMasu])
+    if (next_token_group == [NOMINAL, HE]):
+        HE_rule(overall_rule)
+    elif (next_token_group == [NOMINAL, WO]):
+        WO_rule(overall_rule)
 
-    if (next_token_group == [KA]):
-        check(curr_rule, overall_rule, [KA])
+    check(curr_rule, overall_rule, [VerboMasu])
+
+    KA_rule(overall_rule)
+
+def rule_10_11(overall_rule):
+
+    curr_rule = 10
+
+    topic(overall_rule)
+
+    check(curr_rule, overall_rule, [Adjectives])
+
+    if (next_token_group == [Adj_I]):
+        check(curr_rule, overall_rule, [Adj_I, NOMINAL])
+    elif (next_token_group == [Adj_NA, NA, NOMINAL]):
+        check(curr_rule, overall_rule, [Adj_NA, NA, NOMINAL])
+    
+    check(curr_rule, overall_rule, [PoliteCopula])
+
+    
