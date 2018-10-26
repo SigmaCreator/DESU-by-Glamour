@@ -1,25 +1,36 @@
-import os, sys
+import os
+from terms import common_terms
 
-text = sys.argv[1]
+phrase = [[]]   # The 1st column's the phrase, the other columns are the classifications for each word
 
-os.system("rm output.txt")
-os.system("java -Dfile.encoding=UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar:POS_Tagging POSTagger " + text + " >> output.txt")
+def tokenize(text):
 
-with open("output.txt","r") as file:
-    content = file.readlines()
+    os.system("rm output.txt")
+    os.system("javac -encoding UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar POS_Tagging/POSTagger.java")
+    os.system("java -Dfile.encoding=UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar:POS_Tagging POSTagger " + text + " >> output.txt")
 
-content = [line.strip() for line in content]
+def read_output():
 
-phrase = [[] for y in range(len(content))]
+    global phrase
 
-for i in range(len(content)):
-    
-    first = content[i].split("\t")
-    phrase[i].append(first[0])
-    phrase[i].extend(first[1].split(","))
+    with open("output.txt","r") as file:
+        content = file.readlines()
 
-for line in phrase:
-    print(line)
+    content = [line.strip() for line in content]
 
+    phrase = [[] for y in range(len(content))]
 
+    for i in range(len(content)):
+        
+        piece = content[i].split("\t")          # Splits word and its classifications
+        phrase[i].append(piece[0])              # Appends to the phrase matrix
+        phrase[i].extend(piece[1].split(","))   # Extends the the row with the classifications
 
+def interpret_output():
+    pass
+
+def main(text):
+
+    tokenize(text)
+    read_output()
+    interpret_output()
