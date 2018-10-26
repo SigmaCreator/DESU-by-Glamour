@@ -36,10 +36,15 @@ def interpret_output():
 
     for i in range(len(phrase)):
         
-        tokens.append(common_terms[phrase[i][1]])
+        if (common_terms[phrase[i][1]] == "PARTICLE"):
+            tokens.append(common_terms[phrase[i][0]])
+        else:
+            tokens.append(common_terms[phrase[i][1]])
 
     print("Tokens: ")
     print(tokens)
+
+    grammar.token_wo_issho_ni_suru(tokens)
 
 def main(text):
 
