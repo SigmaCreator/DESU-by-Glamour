@@ -2,6 +2,8 @@ next_token_group = []
 NOMINAL, WA, MO, KARA, MADE, KA, NI, HE, TO, DE, WO, PoliteCopula, VerboMasu = "test"
 curr_rule, overall_rule = -1, -1
 
+from terms import common_terms
+
 def check(curr_rule, overall_rule, token_group):
     pass
 

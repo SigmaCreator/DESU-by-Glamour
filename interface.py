@@ -14,8 +14,8 @@ class Window(Frame):
         self.entry = Entry(self)
         self.translate = Button(self, text = "Traduzir", command = self.input, bg = "pink")
 
-        self.prompt.pack(side = "top", fill = "x")
-        self.entry.pack(side = "top", fill = "x", padx = 20)
+        self.prompt.pack(side = "top", fill = "x", pady = 100)
+        self.entry.pack(side = "top", fill = "x", padx = 20, pady = 50)
         self.translate.pack()
 
     def input(self):
@@ -29,6 +29,8 @@ w = Window(root)
 
 Window(root).pack(fill = "both", expand = True)
 
+root.title("Glamour - Japanese Tool")
+root.geometry("500x500")
 root.mainloop()
 
 

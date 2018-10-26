@@ -1,5 +1,6 @@
 import os
 from terms import common_terms
+import grammar
 
 phrase = [[]]   # The 1st column's the phrase, the other columns are the classifications for each word
 
@@ -26,8 +27,19 @@ def read_output():
         phrase[i].append(piece[0])              # Appends to the phrase matrix
         phrase[i].extend(piece[1].split(","))   # Extends the the row with the classifications
 
+    for line in phrase:
+        print(line)
+
 def interpret_output():
-    pass
+    
+    tokens = []
+
+    for i in range(len(phrase)):
+        
+        tokens.append(common_terms[phrase[i][1]])
+
+    print("Tokens: ")
+    print(tokens)
 
 def main(text):
 
