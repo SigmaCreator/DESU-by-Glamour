@@ -7,7 +7,7 @@ phrase = [[]]   # The 1st column's the phrase, the other columns are the classif
 def tokenize(text):
 
     os.system("rm output.txt")
-    os.system("javac -encoding UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar POS_Tagging/POSTagger.java")
+    # os.system("javac -encoding UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar POS_Tagging/POSTagger.java")
     os.system("java -Dfile.encoding=UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar:POS_Tagging POSTagger " + text + " >> output.txt")
 
 def read_output():

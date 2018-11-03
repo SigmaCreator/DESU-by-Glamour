@@ -1,53 +1,120 @@
 from terms import common_terms
+from patterns import pattern_list, particles
 
-next_token_group = []
-all_token_groups = []
+next_token = []
+all_tokens = []
+curr_rule = "NO RULE"
 
-def check(curr_rule, overall_rule, token_group):
+def check(token):
     
-    global next_token_group, all_token_groups
+    global next_token, all_tokens, curr_rule
     
-    if next_token_group == token_group:
-        print("CORRECT!" + str(curr_rule))
-    else:
-        print("INCORRET! " + str(curr_rule))
+    if (next_token == token) : print("CORRECT! ", curr_rule)
+    else : print("INCORRET! ", curr_rule)
 
-    if len(all_token_groups) != 0:
-        next_token_group = all_token_groups.pop(0)
+    if (len(all_tokens) != 0) : next_token = all_tokens.pop(0)
+
+def uncheck(token):
+
+    all_token.insert(0,next_token)
+    all_tokens.insert(0,token)
+
+def NOMINAL_rule() :
+
+    global next_token, curr_rule
+
+    curr_rule = "NOMINAL RULE"
+
+    is_nominal = False
+
+    if (next_token == 'ADJ_ADNOMINAL') : 
+        check('ADJ_ADNOMINAL')
+        ADJECTIVE_rule()
+        check('NOUN')
+        is_nominal = True
+
+    if (next_token == 'ADVERB') :
+        check('ADVERB')
+        is_nominal = True
+    elif (next_token == 'NO') : check('NO')
+    
+    while (next_token not in particles) :
+        ADJECTIVE_rule()
+        if (next_token == 'NOUN') : 
+            check('NOUN')
+            if (next_token == 'NO') : check('NO')
+            is_nominal = True
+
+    if is_nominal : uncheck('NOMINAL')
+
+def ADJECTIVE_rule() :
+
+    global next_token, curr_rule
+
+    curr_rule = "ADJECTIVE RULE"
+
+    loop = True
+
+    while (loop)
+
+        if (next_token == 'I_ADJ') :
+            check('I_ADJ')
+            if (next_token == 'TE') : check('TE')
+            else : loop = False
+        elif (next_token == 'NOUN') :
+            check('NOUN')
+            if (next_token == 'DE') : check('DE')
+            elif (next_token == 'NA') : 
+                check('NA')
+                loop = False
+            else :  
+                uncheck('NOUN')
+                loop = False
+        else : loop = False
+
+def POLITE_COPULA_rule() :
+
+    if (next_token == 'AUX_VERB') : check('AUX_VERB') # DESU / DA
+    elif (next_token == 'JA') : check('JA') ; check('AUX_VERB') # JA ARIMASEN / JA NAI
+    else : check('DE') ; check('WA') ; check('AUX_VERB') # DE WA ARIMASEN / DE WA NAI
 
 def topic(overall_rule):
     
-    global next_token_group, curr_rule
+    global next_token, curr_rule
 
-    curr_rule = 0
+    curr_rule = "TOPIC RULE"
 
     loop = False
 
-    if(next_token_group == ['NOMINAL', 'WA']):
-        check(curr_rule, overall_rule, ['NOMINAL', 'WA'])
-    else:
+    NOMINAL_rule() 
+
+    if (next_token = 'NOMINAL') : check('NOMINAL')
+   
+    if (next_token == 'WA') : check('WA')
+    elif (next_token == 'MO') :
+        check('MO')
         loop = True
 
-    group = []
+    while (loop):
 
-    while(loop):
+        NOMINAL_rule()
 
-        if(next_token_group == ['NOMINAL', 'MO']):
-            group.append(['NOMINAL', 'MO'])
-        else:
-            break
-
-    if(loop):
-        check(curr_rule, overall_rule, group)
+        if (next_token == 'NOMINAL') : 
+            check('NOMINAL')
+            if (next_token == 'MO') : check('MO')
+            else : 
+                uncheck('NOMINAL')
+                loop = False
 
 def rule_01(overall_rule):
     
     curr_rule = 1
     
     topic(overall_rule)
-    
-    check(curr_rule, overall_rule, ['NOMINAL'])
-    check(curr_rule, overall_rule, ['AUX_VERB'])
+
+    NOMINAL_rule() ; check('NOMINAL')
+
+    POLITE_COPULA_rule()
 
     print("THE PHRASE FITS RULE 01")
 
@@ -57,16 +124,55 @@ def rule_caller():
 
     rule_01(1)
 
-def token_wo_issho_ni_suru(list):
+def token_wo_issho_ni_suru(token_list):
     
-    global next_token_group, all_token_groups
-    
-    all_token_groups = [[list[0],list[1]],[list[2]],[list[3]]]
-    
-    next_token_group = all_token_groups.pop(0)
+    global next_token, all_tokens    
+
+    all_token = token_list
+
+    aux_list = token_list
+    old_list = []
+
+    while (True) :
+        old_list = aux_list
+        for p in pattern_list : aux_list = pattern_matcher(aux_list,p)
+        if (aux_list == old_list) : break
+            
+    next_token = all_tokens.pop(0)
     
     rule_caller()
 
+def pattern_matcher(list, pattern):
+
+    print("Token list: ", list)
+
+    if len(pattern) == 0 : return
+
+    new_list, buffer = [], []
+    
+    i, j = 0, 0
+
+    while (i < len(list)) :
+
+        buffer.append(list[i])
+        print("Buffer: ", buffer)
+
+        if pattern == tuple(buffer) :
+            print("Pattern found: ", pattern, " ==> ", pattern_list[pattern])
+            new_list.append(pattern_list[pattern])
+            buffer = []
+            j = 0
+
+        if len(buffer) != 0 and pattern[j] == buffer[j] :
+            j = j + 1
+        else :
+            new_list.extend(buffer)
+            buffer = []
+            j = 0
+
+        i = i + 1
+
+    return new_list
 
 
 
