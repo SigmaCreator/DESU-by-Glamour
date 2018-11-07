@@ -37,9 +37,16 @@ def interpret_output():
     for i in range(len(phrase)):
         
         if (common_terms[phrase[i][1]] == "PARTICLE"):
+            
             tokens.append(common_terms[phrase[i][0]])
-        else:
-            tokens.append(common_terms[phrase[i][1]])
+
+        elif (common_terms[phrase[i][1]] == 'NOUN' and common_terms[phrase[i][2]] == 'NA_ADJ') :
+
+                tokens.append(common_terms[phrase[i][2]])
+
+            else :
+
+                tokens.append(common_terms[phrase[i][1]])
 
     print("Tokens: ")
     print(tokens)

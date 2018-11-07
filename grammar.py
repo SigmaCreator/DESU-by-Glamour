@@ -1,7 +1,7 @@
 from terms import common_terms
 from patterns import pattern_list, particles
 
-next_token = []
+next_token = ""
 all_tokens = []
 curr_rule = "NO RULE"
 
@@ -16,8 +16,10 @@ def check(token):
 
 def uncheck(token):
 
+    global next_token, all_tokens
+
     all_token.insert(0,next_token)
-    all_tokens.insert(0,token)
+    next_token = token
 
 def NOMINAL_rule() :
 
@@ -27,8 +29,8 @@ def NOMINAL_rule() :
 
     is_nominal = False
 
-    if (next_token == 'ADJ_ADNOMINAL') : 
-        check('ADJ_ADNOMINAL')
+    if (next_token == 'ADNOM_ADJ') : 
+        check('ADNOM_ADJ')
         ADJECTIVE_rule()
         check('NOUN')
         is_nominal = True
@@ -47,7 +49,7 @@ def NOMINAL_rule() :
 
     if is_nominal : uncheck('NOMINAL')
 
-def ADJECTIVE_rule() :
+def ADJECTIVE_rule():
 
     global next_token, curr_rule
 
@@ -72,7 +74,7 @@ def ADJECTIVE_rule() :
                 loop = False
         else : loop = False
 
-def POLITE_COPULA_rule() :
+def POLITE_COPULA_rule():
 
     if (next_token == 'AUX_VERB') : check('AUX_VERB') # DESU / DA
     elif (next_token == 'JA') : check('JA') ; check('AUX_VERB') # JA ARIMASEN / JA NAI
@@ -88,7 +90,7 @@ def topic(overall_rule):
 
     NOMINAL_rule() 
 
-    if (next_token = 'NOMINAL') : check('NOMINAL')
+    if (next_token = 'NOMINAL') : check('NOMINAL') # DAR UNCHECK CASO N VEJA PARTICULA
    
     if (next_token == 'WA') : check('WA')
     elif (next_token == 'MO') :
