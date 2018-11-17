@@ -14,42 +14,39 @@ def read_output():
 
     global phrase
 
-    with open("output.txt","r") as file:
-        content = file.readlines()
+    with open("output.txt","r") as file : content = file.readlines()
 
     content = [line.strip() for line in content]
 
     phrase = [[] for y in range(len(content))]
 
-    for i in range(len(content)):
+    for i in range(len(content)) :
         
         piece = content[i].split("\t")          # Splits word and its classifications
         phrase[i].append(piece[0])              # Appends to the phrase matrix
         phrase[i].extend(piece[1].split(","))   # Extends the the row with the classifications
 
-    for line in phrase:
-        print(line)
+    for line in phrase : print(line)
 
 def interpret_output():
     
     tokens = []
 
-    for i in range(len(phrase)):
+    for i in range(len(phrase)) :
+
+        word = common_terms(phrase[i][0])
+        first_token = common_terms(phrase[i][1])
+        second_token = common_terms(phrase[i][2])
         
-        if (common_terms[phrase[i][1]] == "PARTICLE"):
-            
-            tokens.append(common_terms[phrase[i][0]])
+        if (first_token == "PARTICLE") : tokens.append(word)
 
-        elif (common_terms[phrase[i][1]] == 'NOUN' and common_terms[phrase[i][2]] == 'NA_ADJ') :
+        elif (first_token == 'NOUN' and second_token == 'ADJ_NOUN') : tokens.append(second_token)
+        
+        elif ((word == 'NA' or word == 'DE') and first_token == 'AUX_VERB') : tokens.append(word)
 
-                tokens.append(common_terms[phrase[i][2]])
+        else : tokens.append(first_token)
 
-            else :
-
-                tokens.append(common_terms[phrase[i][1]])
-
-    print("Tokens: ")
-    print(tokens)
+    print("Tokens - Before : ", tokens)
 
     grammar.token_wo_issho_ni_suru(tokens)
 
