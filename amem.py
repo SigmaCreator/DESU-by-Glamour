@@ -1,10 +1,14 @@
 import os
 from terms import common_terms
 import grammar
-from playsound import playsound
+# from playsound import playsound
 import pygame
+import log
+import translation
 
 phrase = [[]]   # The 1st column's the phrase, the other columns are the classifications for each word
+explained = ""
+translated = ""
 
 def tokenize(text):
 
@@ -15,10 +19,11 @@ def tokenize(text):
         os.system("javac -encoding UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar POS_Tagging/POSTagger.java")
         os.system("java -Dfile.encoding=UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar;POS_Tagging POSTagger > output.txt")
 
-    if os.name == 'mac' :
+    if os.name == 'posix' :
 
         os.system("javac -encoding UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar POS_Tagging/POSTagger.java")
         os.system("java -Dfile.encoding=UTF-8 -cp POS_Tagging/kuromoji-0.7.7.jar:POS_Tagging POSTagger > output.txt")
+
 
 def read_output():
 
@@ -39,6 +44,8 @@ def read_output():
     for line in phrase : print(line)
 
 def interpret_output():
+
+    global explained
     
     tokens = []
 
@@ -60,18 +67,30 @@ def interpret_output():
 
     grammar.token_wo_issho_ni_suru(tokens)
 
-# def translate(text):
+    explained = log.get_info()
+    log.clear_log()
+
+def translate(text):
+
+    global translated
+
+    translated = translation.translate(text,'pt')
 
 
 def main(text):
 
-    pygame.mixer.init()
-    pygame.mixer.music.load('oh-yes.mp3')
-    pygame.mixer.music.play()
+    global explained, translated
 
-    #playsound('oh-yes-undertale.mp3')
+    # pygame.mixer.init()
+    # pygame.mixer.music.load('oh-yes.mp3')
+    # pygame.mixer.music.play()
+
+    # playsound('oh-yes-undertale.mp3')
 
     tokenize(text)
     read_output()
     interpret_output()
-    # translate(text)
+    translate(text)
+        
+
+    return (explained,translated)

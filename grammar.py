@@ -1,6 +1,7 @@
 from terms import common_terms, particles, adjectives
 from patterns import pattern_list
 from exceptions import *
+import log
 
 next_token = ""
 all_tokens = []
@@ -12,7 +13,9 @@ def check(token):
 
     if next_token == 'OVER' : raise EndOfSentenceException({"End of Sentence - Expected Token" : token , "Current Rule" : curr_rule})
     
-    if (next_token == token) : print("CORRECT!", token, "@", curr_rule)
+    if (next_token == token) : 
+        log.explain.append(next_token)
+        print("CORRECT!", token, "@", curr_rule)
     else : 
         print("INCORRET! Expecting:", token, "- Found:", next_token, "@", curr_rule)
         raise GrammarException({"Grammar - Expected Token" : token , "Token" : next_token, "Current Rule" : curr_rule})

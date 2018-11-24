@@ -1,3 +1,5 @@
+#!/Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+
 from tkinter import *
 import amem
 import pygame
@@ -6,19 +8,19 @@ class Window(Frame):
 
     def __init__(self, parent):
 
-        pygame.mixer.init()
-        pygame.mixer.music.load('death-by-glamour.mp3')
-        pygame.mixer.music.play()
+        # pygame.mixer.init()
+        # pygame.mixer.music.load('death-by-glamour.mp3')
+        # pygame.mixer.music.play()
 
         self.master = parent
         self.master.bind('<Return>', self.input)
         
         Frame.__init__(self, parent)
-        Frame.config(self, bg = "pink")
+        # Frame.config(self, bg = "pink")
 
         self.prompt = Label(self, text = "Coloque uma frase em japonês: ", bg = "pink")
         self.entry = Entry(self)
-        self.translate = Button(self, text = "ってゆうか", command = self.input, bg = "pink")
+        self.translate = Button(self, text = "Detalhar", command = self.input, bg = "pink")
 
         self.explanation = Label(self, text = "Explicação")
         self.translation = Label(self, text = "Tradução")
@@ -34,14 +36,23 @@ class Window(Frame):
     def input(self, event = None):
         
         text = self.entry.get()
-        amem.main(text)
+
+        print("thank u, text")
+
+        (explained, translated) = amem.main(text)
+
+        self.explanation.config(text = explained)
+        self.translation.config(text = translated)
+
+        print("thank u, next")
+
 
 root = Tk()
 
 w = Window(root)
 
 Window(root).pack(fill = "both", expand = True)
-root.title("Glamour - Japanese Tool")
+root.title("DESU by Glamour")
 root.mainloop()
 
 
