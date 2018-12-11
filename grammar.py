@@ -1,4 +1,4 @@
-from terms import common_terms, particles, adjectives
+from terms import common_terms, particles, adjectives, token_to_word
 from patterns import pattern_list
 from exceptions import *
 import log
@@ -11,14 +11,14 @@ def check(token):
     
     global next_token, all_tokens, curr_rule
 
-    if next_token == 'OVER' : raise EndOfSentenceException({"End of Sentence - Expected Token" : token , "Current Rule" : curr_rule})
+    if next_token == 'OVER' : raise EndOfSentenceException([token,curr_rule])
     
     if (next_token == token) : 
         log.explain.append(next_token)
         print("CORRECT!", token, "@", curr_rule)
     else : 
         print("INCORRET! Expecting:", token, "- Found:", next_token, "@", curr_rule)
-        raise GrammarException({"Grammar - Expected Token" : token , "Token" : next_token, "Current Rule" : curr_rule})
+        raise GrammarException([token,next_token,curr_rule])
     
     if (len(all_tokens) != 0) : next_token = all_tokens.pop(0)
     else : next_token = 'OVER' ; print("NO TOKENS LEFT TO CRY")
@@ -30,6 +30,7 @@ def PHRASE():
     curr_rule = "PHRASE"
 
     test = NOMINAL() # Tests for a NOMINAL
+    early_test = False
 
     if test : # The phrase starts with a NOMINAL
 
@@ -42,18 +43,28 @@ def PHRASE():
             check('WA')
             if (next_token == 'AUX_VERB') : check('NOMINAL') # Breaks
             has_topic = True    # Where's a WA, there's a TOPIC
+            log.found_topic()
 
-        if (not has_topic) and (next_token in particles) : # If there's no TOPIC and the NEXT TOKEN is a PARTICLE
+        if (not has_topic) :
+            
+            if (next_token in particles) : # If there's no TOPIC and the NEXT TOKEN is a PARTICLE
 
-            curr_rule = "INFO"
-            check(next_token) # Check whatever PARTICLE that is
+                curr_rule = "INFO"
+                check(next_token) # Check whatever PARTICLE that is
+                early_test = True
+            
+            if (next_token == 'VERB') :
+
+                check('PARTICLE')
         
         test = INFO() # Tests for INFO
 
-        if test : test = VERBAL()   # ... and the INFO test succeeds, it should be an ACTION PHRASE
+        if test or early_test : test = VERBAL()   # ... and the INFO test succeeds, it should be an ACTION PHRASE
         else : test = COPULA()      # ... and the INFO test fails, it should be a DESCRIPTIVE PHRASE 
     
     else : test = VERBAL()
+
+    if next_token == 'KA' : curr_rule = 'QUESTION' ; check('KA') ; log.question = True
 
     return test
                
@@ -85,8 +96,8 @@ def INFO():
     
     else :
 
-        if particle_test : check('NO_NOMINAL_BEFORE') # Breaks
-        return False        
+        if particle_test : check('NOMINAL') # Breaks
+        return False
 
 def VERBAL():
 
@@ -95,6 +106,8 @@ def VERBAL():
     curr_rule = "VERBAL"
 
     check('VERB')
+
+    log.set_sentence_type("VERBAL")
 
     return True
 
@@ -106,16 +119,22 @@ def COPULA():
 
     check('AUX_VERB')
 
+    log.set_sentence_type("DESCRIPTIVE")
+
     return True
 
 def NOMINAL():
 
     adverb_test = False
+    adnom_test = False
 
     if (next_token == 'ADVERB') : check('ADVERB') ; adverb_test = True
+    elif (next_token == 'ADNOM_ADJ') : check('ADNOM_ADJ') ; adnom_test = True
 
     adjective_test = ADJECTIVE()
     noun_test = NOUN()
+
+    if adnom_test and (not noun_test) : check('NOUN') ; return False
 
     if adjective_test and (not noun_test) :
 
@@ -162,22 +181,25 @@ def ADJECTIVE():
     
     return False
 
-def token_wo_issho_ni_suru(token_list):
+def token_wo_issho_ni_suru(token_list,word_list):
     
     global next_token, all_tokens    
 
-    all_tokens = token_list
+    aux_token_list = token_list
+    aux_word_list = word_list
 
-    aux_list = token_list
     old_list = []
 
     while (True) :
 
-        old_list = aux_list
-        for p in pattern_list : aux_list = pattern_matcher(aux_list,p)
-        if (aux_list == old_list) : break
+        old_list = aux_token_list
+        for p in pattern_list : 
+            (aux_token_list,aux_word_list) = pattern_matcher(aux_token_list,aux_word_list,p)
+        if (aux_token_list == old_list) : break
 
-    all_tokens = aux_list
+    all_tokens = aux_token_list
+
+    log.set_phrase(aux_word_list)
 
     print("Tokens - After : ", all_tokens)
             
@@ -187,55 +209,70 @@ def token_wo_issho_ni_suru(token_list):
 
         PHRASE()
 
-    except Exception as g :
+    except GrammarException as e :
 
-        print(g)
+        log.error = "Foi encontrado um termo do tipo %s, mas era esperado um termo do tipo %s" % (token_to_word(e.info[1]), token_to_word(e.info[0]))
 
-def pattern_matcher(list, pattern):
+    except EndOfSentenceException as e :
+
+        log.error = "Fim de frase, esperava-se um termo do tipo %s" % token_to_word(e.info[0])
+
+def pattern_matcher(token_list, word_list, pattern):
 
     # print("Token list: ", list)
     # print("Pattern: ", pattern)
 
     if len(pattern) == 0 : return
 
-    new_list, buffer = [], []
+    new_token_list, token_buffer = [], []
+    new_word_list, word_buffer = [], []
     
     i, j = 0, 0
 
     pattern_break = False
 
-    while (i < len(list)) :
+    while (i < len(token_list)) :
 
         if pattern_break :
 
-            new_list.extend(buffer)
-            buffer = []
+            new_token_list.extend(token_buffer) ; new_word_list.extend(word_buffer)
+            token_buffer = [] ; word_buffer = []
             j = 0
             pattern_break = False
 
-        buffer.append(list[i])
+        token_buffer.append(token_list[i])
+        word_buffer.append(word_list[i])
         # print("Buffer: ", buffer)
 
-        if pattern == tuple(buffer) :
+        if pattern == tuple(token_buffer) :
 
             # print("Pattern found: ", pattern, " ==> ", pattern_list[pattern])
-            new_list.append(pattern_list[pattern])
-            buffer = []
+            new_token_list.append(pattern_list[pattern])
+
+            new_word = ""
+            for w in word_buffer: new_word = new_word + w
+            new_word_list.append(new_word)
+
+            token_buffer = [] ; word_buffer = []
+
             j = 0
 
-        elif len(buffer) != 0 and pattern[j] == buffer[j] :
+        elif len(token_buffer) != 0 and pattern[j] == token_buffer[j] :
 
             j = j + 1
             
         else :
             
             if j > 0 : pattern_break = True
-            new_list.extend(buffer)
-            buffer = []
+            new_token_list.extend(token_buffer) ; new_word_list.extend(word_buffer)
+            token_buffer = [] ; word_buffer = []
             j = 0
 
         i = i + 1
     
-    if len(buffer) != 0 : new_list.extend(buffer)
+    if len(token_buffer) != 0 : new_token_list.extend(token_buffer) ; new_word_list.extend(word_buffer)
 
-    return new_list
+    print(new_token_list)
+    print(new_word_list)
+
+    return (new_token_list,new_word_list)

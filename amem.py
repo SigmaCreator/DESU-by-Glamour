@@ -1,13 +1,7 @@
-import os
+import os, grammar, log, translation
 from terms import common_terms
-import grammar
-# from playsound import playsound
-import pygame
-import log
-import translation
 
 phrase = [[]]   # The 1st column's the phrase, the other columns are the classifications for each word
-explained = ""
 translated = ""
 
 def tokenize(text):
@@ -44,16 +38,17 @@ def read_output():
     for line in phrase : print(line)
 
 def interpret_output():
-
-    global explained
     
     tokens = []
+    words = []
 
-    for i in range(len(phrase)) :
+    for i in range(len(phrase)):
 
         word = common_terms(phrase[i][0])
         first_token = common_terms(phrase[i][1])
         second_token = common_terms(phrase[i][2])
+        base_form = common_terms(phrase[i][5])
+        print(phrase[i][5])
         
         if (first_token == "PARTICLE") : tokens.append(word)
 
@@ -61,15 +56,16 @@ def interpret_output():
         
         elif ((word == 'NA' or word == 'DE') and first_token == 'AUX_VERB') : tokens.append(word)
 
+        elif (word == "MASU") : log.set_verb_form("MASU") ; tokens.append(first_token)
+
         else : tokens.append(first_token)
 
-    print("Tokens - Before : ", tokens)
+        words.append(phrase[i][0])
+    
+    # print("Tokens - Before : ", tokens)
 
-    grammar.token_wo_issho_ni_suru(tokens)
-
-    explained = log.get_info()
-    log.clear_log()
-
+    grammar.token_wo_issho_ni_suru(tokens,words)
+    
 def translate(text):
 
     global translated
@@ -79,13 +75,7 @@ def translate(text):
 
 def main(text):
 
-    global explained, translated
-
-    # pygame.mixer.init()
-    # pygame.mixer.music.load('oh-yes.mp3')
-    # pygame.mixer.music.play()
-
-    # playsound('oh-yes-undertale.mp3')
+    global translated
 
     tokenize(text)
     read_output()
@@ -93,4 +83,4 @@ def main(text):
     translate(text)
         
 
-    return (explained,translated)
+    return translated

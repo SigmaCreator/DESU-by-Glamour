@@ -1,15 +1,11 @@
 class GrammarException(Exception):
 
-    def __init___(self,dErrorArguments):
+    def __init__(self,info):
 
-        Exception.__init__(self,"my exception was raised with arguments {0}".format(dErrArguments))
-
-        self.dErrorArguments = dErrorArguements
+        self.info = info
 
 class EndOfSentenceException(Exception):
 
-    def __init___(self,dErrorArguments):
+    def __init__(self,info):
 
-        Exception.__init__(self,"my exception was raised with arguments {0}".format(dErrArguments))
-
-        self.dErrorArguments = dErrorArguements
+        self.info = info
