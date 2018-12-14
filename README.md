@@ -10,5 +10,5 @@
   * Open the DESU by Glamour folder on your terminal and type "./run.py" (you might need to alter the permissions of "run.py" to be able to execute it)
  
 <p align="center">
-  <img src="Logo DESU/LOGO by Glamour.png" width=1000 height=1000>
+  <img src="Logo DESU/LOGO by Glamour.png" width=500 height=500>
 </p>
